@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCrack</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="scripts.js" defer></script>
+</head>
+
+<body>
+    <button class="menu-button-fixed" id="fixedMenuButton" onclick="returnToMenu()">🏠 Menú</button>
+    <button class="dark-mode-toggle" id="darkModeToggle" onclick="toggleDarkMode()">Modo: <span>🌙</span></button>
+    <div class="container">
+        <div class="header">
+            <div class="stats-bar">
+                <div class="stat-item">🏆 <span id="totalWins">0</span></div>
+                <div class="stat-item">🔥 <span id="winStreak">0</span></div>
+                <div class="stat-item">⚡ <span id="fastestTime">--</span>s</div>
+            </div>
+            <h1>🔐 CodeCrack</h1>
+            <p>Pistas en mano, números en mente. ¡A CodeCrackear!</p>
+        </div>
+
+        <!-- PANTALLA DE INICIO -->
+        <div class="start-screen" id="startScreen">
+            <h2 class="welcome-title">Tu mente es la llave. ¿Podrás abrir el candado?</h2>
+
+            <div class="selection-section">
+                <h3 class="selection-title">🎮 Selecciona el Modo de Juego</h3>
+                <div class="options-grid" id="gameModeOptions">
+                    <div class="option-card selected" data-mode="classic" onclick="selectGameMode('classic')">
+                        <span class="option-icon">🎯</span>
+                        <div class="option-name">Clásico</div>
+                        <div class="option-desc">Juego tradicional sin límite de tiempo. Perfecto para principiantes.
+                        </div>
+                    </div>
+                    <div class="option-card" data-mode="timed" onclick="selectGameMode('timed')">
+                        <span class="option-icon">⏱️</span>
+                        <div class="option-name">Contrarreloj</div>
+                        <div class="option-desc">Tiempo limitado según dificultad. ¡Pon a prueba tu velocidad!</div>
+                    </div>
+                    <div class="option-card" data-mode="multiplayer" onclick="selectGameMode('multiplayer')">
+                        <span class="option-icon">👥</span>
+                        <div class="option-name">Multijugador Local</div>
+                        <div class="option-desc">Un jugador crea el código, el otro lo descifra. Turnos alternados.
+                        </div>
+                    </div>
+                    <div class="option-card" data-mode="online" onclick="selectGameMode('online')">
+                        <span class="option-icon">🌐</span>
+                        <div class="option-name">Multijugador Online</div>
+                        <div class="option-desc">Juega con amigos a través de internet. Salas privadas y chat.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="selection-section">
+                <h3 class="selection-title">🎯 Selecciona la Dificultad</h3>
+                <div class="options-grid" id="difficultyOptions">
+                    <div class="option-card selected" data-difficulty="easy" onclick="selectDifficulty('easy')">
+                        <span class="option-icon">😎</span>
+                        <div class="option-name">Fácil</div>
+                        <div class="option-desc">3 dígitos • 4 intentos • 6 pistas • 180s contrarreloj</div>
+                    </div>
+                    <div class="option-card" data-difficulty="medium" onclick="selectDifficulty('medium')">
+                        <span class="option-icon">😐</span>
+                        <div class="option-name">Medio</div>
+                        <div class="option-desc">4 dígitos • 3 intentos • 6 pistas • 120s contrarreloj</div>
+                    </div>
+                    <div class="option-card" data-difficulty="hard" onclick="selectDifficulty('hard')">
+                        <span class="option-icon">☠️</span>
+                        <div class="option-name">Difícil</div>
+                        <div class="option-desc">5 dígitos • 2 intentos • 6 pistas • 60s contrarreloj</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <button class="btn btn-secondary" onclick="openHelpModal()" style="margin-right: 20px;">
+                    ❓ Cómo Jugar
+                </button>
+                <button class="start-button" onclick="startGameFromMenu()">
+                    🚀 ¡Comenzar Aventura!
+                </button>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE JUEGO -->
+        <div class="game-screen" id="gameScreen">
+            <div class="game-section">
+                <div class="timer-display" id="timerDisplay">
+                    ⏰ Tiempo: <span id="timeLeft">60</span>s
+                </div>
+
+                <div class="multiplayer-section" id="multiplayerSection">
+                    <h3>👥 Modo Multijugador Local</h3>
+                    <div class="player-info">
+                        <div class="player-card" id="player1Card">
+                            <h4>🎯 Jugador 1</h4>
+                            <p id="player1Role">Creador del código</p>
+                            <p>Puntos: <span id="player1Score">0</span></p>
+                        </div>
+                        <div class="player-card" id="player2Card">
+                            <h4>🕵️ Jugador 2</h4>
+                            <p id="player2Role">Descifrador</p>
+                            <p>Puntos: <span id="player2Score">0</span></p>
+                        </div>
+                    </div>
+
+                    <div class="code-input-section" id="codeInputSection">
+                        <h4>🔢 Jugador 1: Ingresa tu código secreto</h4>
+                        <div class="code-input" id="codeInput">
+                            <!-- Los campos se generarán dinámicamente -->
+                        </div>
+                        <button class="btn btn-primary" onclick="submitSecretCode()">Confirmar Código</button>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn btn-secondary" onclick="switchRoles()">🔄 Cambiar Roles</button>
+                        <button class="btn btn-secondary" onclick="resetMultiplayerScores()">🔄 Reiniciar
+                            Puntuaciones</button>
+                    </div>
+                </div>
+
+                <div class="online-section" id="onlineSection">
+                    <h3>🌐 Modo Multijugador Online</h3>
+
+                    <div class="connection-status disconnected" id="connectionStatus">
+                        🔴 Desconectado - Ingresa tu nombre y únete a una sala
+                    </div>
+
+                    <div class="room-controls">
+                        <input type="text" class="room-input" id="playerName" placeholder="Tu nombre" maxlength="20">
+                        <input type="text" class="room-input" id="roomCode" placeholder="Código de sala (opcional)"
+                            maxlength="10">
+                        <button class="btn btn-online" onclick="joinRoom()">🚪 Unirse a Sala</button>
+                        <button class="btn btn-online" onclick="createRoom()">➕ Crear Sala</button>
+                        <button class="btn btn-secondary" onclick="leaveRoom()" id="leaveRoomBtn"
+                            style="display: none;">🚪 Salir de Sala</button>
+                    </div>
+
+                    <div class="player-info" id="onlinePlayerInfo" style="display: none;">
+                        <div class="player-card" id="onlinePlayer1Card">
+                            <h4 id="onlinePlayer1Name">Jugador 1</h4>
+                            <p id="onlinePlayer1Role">Esperando...</p>
+                            <p>Puntos: <span id="onlinePlayer1Score">0</span></p>
+                        </div>
+                        <div class="player-card" id="onlinePlayer2Card">
+                            <h4 id="onlinePlayer2Name">Jugador 2</h4>
+                            <p id="onlinePlayer2Role">Esperando...</p>
+                            <p>Puntos: <span id="onlinePlayer2Score">0</span></p>
+                        </div>
+                    </div>
+
+                    <div class="text-center" id="onlineStartGameSection" style="display: none; margin-bottom: 20px;">
+                        <button class="btn btn-primary" onclick="startOnlineGame()" id="startOnlineGameBtn">🎮 Comenzar
+                            Juego Online</button>
+                    </div>
+
+                    <div class="code-input-section" id="onlineCodeInputSection">
+                        <h4>🔢 Tu turno: Ingresa tu código secreto</h4>
+                        <div class="code-input" id="onlineCodeInput">
+                            <!-- Los campos se generarán dinámicamente -->
+                        </div>
+                        <button class="btn btn-primary" onclick="submitOnlineSecretCode()">Confirmar Código</button>
+                    </div>
+
+                    <div class="chat-section" id="chatSection">
+                        <h4>💬 Chat de la Sala</h4>
+                        <div class="chat-messages" id="chatMessages"></div>
+                        <div class="chat-input-container">
+                            <input type="text" class="chat-input" id="chatInput" placeholder="Escribe un mensaje..."
+                                maxlength="200">
+                            <button class="btn btn-primary" onclick="sendMessage()">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attempts-counter" id="attemptsCounter">
+                    Intentos restantes: <span id="attemptsLeft">3</span>
+                </div>
+
+                <div class="clues-section" id="cluesSection">
+                    <h2 class="clues-title">🕵️ Pistas para Resolver</h2>
+                    <div id="cluesContainer">
+                        <!-- Las pistas se generarán dinámicamente -->
+                    </div>
+                </div>
+
+                <div class="answer-section">
+                    <h3>💡 Ingresa tu respuesta</h3>
+                    <div class="answer-input" id="answerInput">
+                        <!-- Los campos se generarán dinámicamente según la dificultad -->
+                    </div>
+                    <div class="game-controls">
+                        <button class="btn btn-primary" onclick="checkAnswer()">Verificar Código</button>
+                        <button class="btn btn-secondary" onclick="generateNewGame()">Nueva Ronda</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="result-modal" id="resultModal">
+        <h2 id="resultTitle"></h2>
+        <p id="resultMessage"></p>
+        <div class="modal-buttons">
+            <button class="btn-modal" onclick="returnToMenu()">🏠 Menú Principal</button>
+            <button class="btn-modal primary" onclick="playAgain()">🔄 Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <div class="help-modal" id="helpModal">
+        <h3>❓ Cómo Jugar</h3>
+
+        <div class="help-section">
+            <h4>🎯 Objetivo del Juego</h4>
+            <ul class="help-list">
+                <li style="list-style-type: none;">🔍 Descifra el código secreto usando las pistas proporcionadas</li>
+                <li style="list-style-type: none;">🧩 Analiza cada pista cuidadosamente para deducir los números
+                    correctos</li>
+                <li style="list-style-type: none;">⏰ Resuelve el código antes de que se acaben los intentos</li>
+            </ul>
+        </div>
+
+        <div class="help-section">
+            <h4>🔍 Tipos de Pistas</h4>
+            <ul class="help-list">
+                <li style="list-style-type: none;">🟢 <strong>Verde:</strong> Un número está correcto y en la posición
+                    correcta</li>
+                <li style="list-style-type: none;">🟡 <strong>Amarillo:</strong> Un número está correcto pero en
+                    posición incorrecta</li>
+                <li style="list-style-type: none;">🔴 <strong>Rojo:</strong> Ningún número de esta pista es correcto
+                </li>
+                <li style="list-style-type: none;">💡 <strong>Lógicas:</strong> Pistas especiales sobre patrones o
+                    características</li>
+            </ul>
+        </div>
+
+        <div class="help-section">
+            <h4>🎮 Modos de Juego</h4>
+            <ul class="help-list">
+                <li style="list-style-type: none;">🎯 <strong>Clásico:</strong> Juego tradicional sin límite de tiempo
+                </li>
+                <li style="list-style-type: none;">⏱️ <strong>Contrarreloj:</strong> Resuelve el código en 60 segundos
+                </li>
+                <li style="list-style-type: none;">👥 <strong>Multijugador Local:</strong> Un jugador crea el código, el
+                    otro lo descifra</li>
+                <li style="list-style-type: none;">🌐 <strong>Multijugador Online:</strong> Juega con amigos a través de
+                    internet</li>
+            </ul>
+        </div>
+
+        <div class="help-section">
+            <h4>🏆 Consejos para Ganar</h4>
+            <ul class="help-list">
+                <li style="list-style-type: none;">📝 Anota qué números has descartado</li>
+                <li style="list-style-type: none;">🔄 Compara las pistas entre sí para encontrar patrones</li>
+                <li style="list-style-type: none;">🎯 Usa las pistas verdes como punto de partida</li>
+                <li style="list-style-type: none;">💬 En modo online, usa el chat para estrategias</li>
+            </ul>
+        </div>
+
+        <div class="modal-buttons">
+            <button class="btn-modal primary" onclick="closeHelpModal()">¡Entendido!</button>
+        </div>
+    </div>
+</body>
+
+</body>
+
+</html>
